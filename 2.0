@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Margin Master PRO</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 20px;
+            color: #333;
+        }
+        input, button, label {
+            padding: 8px;
+            margin: 5px;
+            display: block;
+        }
+        input[type="checkbox"] {
+            display: inline-block;
+            width: auto;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        @media only screen and (max-width: 600px) {
+            body {
+                background-color: #fff;
+            }
+            input, button {
+                width: 100%;
+                box-sizing: border-box;
+            }
+        }
+    </style>
+    <!-- Include the SheetJS library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+</head>
+<body>
+    <h1>Margin Master PRO</h1>
+
+    <!-- Gross Margin Calculation -->
+    <h2>Gross Margin Calculator</h2>
+    Sale Price: <input type="number" id="salePrice1">
+    Cost: <input type="number" id="cost1">
+    <button onclick="calculateGrossMargin()">Calculate Gross Margin</button>
+    <p id="grossMarginResult"></p>
+
+    <!-- Sale Price from Cost and Margin -->
+    <h2>Sale Price Calculator</h2>
+    Cost: <input type="number" id="cost2">
+    Gross Margin (%): <input type="number" id="marginPercent">
+    <button onclick="calculateSalePrice()">Calculate Sale Price</button>
+    <p id="salePriceResult"></p>
+
+    <!-- Cost from Sale Price and Margin -->
+    <h2>Cost Calculator</h2>
+    Sale Price: <input type="number" id="salePrice2">
+    Gross Margin (%): <input type="number" id="marginPercent2">
+    <button onclick="calculateCost()">Calculate Cost</button>
+    <p id="costResult"></p>
+
+    <!-- Price Adjustment -->
+    <h2>Price Adjustment Calculator</h2>
+    Original Price: <input type="number" id="originalPrice">
+    Adjustment (%): <input type="number" id="adjustmentPercent">
+    <button onclick="adjustPrice()">Adjust Price</button>
+    <p id="adjustedPriceResult"></p>
+
+    <!-- Percent Difference Calculation -->
+    <h2>Percent Difference Calculator</h2>
+    Number 1: <input type="number" id="number1">
+    Number 2: <input type="number" id="number2">
+    <button onclick="calculatePercentDifference()">Calculate Percent Difference</button>
+    <p id="percentDifferenceResult"></p>
+
+    <!-- Cost and Profit Calculation -->
+    <h2>Cost and Profit Calculator</h2>
+    <div>
+        <label for="laborCost">Labor Cost:</label>
+        <input type="number" id="laborCost" placeholder="Enter labor cost" />
+    </div>
+    <div>
+        <label for="materialCost">Material Cost:</label>
+        <input type="number" id="materialCost" placeholder="Enter material cost" />
+    </div>
+    <div>
+        <label for="laborMargin">Labor Profit Margin (%):</label>
+        <input type="number" id="laborMargin" placeholder="Enter labor profit margin" />
+    </div>
+    <div>
+        <label for="materialMargin">Material Profit Margin (%):</label>
+        <input type="number" id="materialMargin" placeholder="Enter material profit margin" />
+    </div>
+    <button onclick="calculateCostAndProfit()">Calculate</button>
+    <h2>Results</h2>
+    <div>
+        <p>Sale Price for Labor: <span id="laborSalePrice"></span></p>
+        <p>Sale Price for Material: <span id="materialSalePrice"></span></p>
+        <p>Total Sale Price: <span id="totalSalePrice"></span></p>
+        <p>Total Profit Margin: <span id="totalProfitMargin"></span></p>
+    </div>
+
+    <!-- Export Data -->
+    <button onclick="exportData('csv')">Export to CSV</button>
+    <button onclick="exportData('excel')">Export to Excel</button>
+
+    <script>
+        function calculateGrossMargin() {
+            var salePrice = parseFloat(document.getElementById('salePrice1').value);
+            var cost = parseFloat(document.getElementById('cost1').value);
+            if (!isNaN(salePrice) && !isNaN(cost) && salePrice !== 0) {
+                var grossMarginPercentage = ((salePrice - cost) / salePrice) * 100;
+                var grossMarginDollars = salePrice - cost;
+                document.getElementById('grossMarginResult').innerHTML = 'Gross Margin Percentage: ' + grossMarginPercentage.toFixed(2) + '%, Gross Margin Dollars: $' + grossMarginDollars.toFixed(2);
+            } else {
+                document.getElementById('grossMarginResult').innerHTML = 'Please enter valid numbers.';
+            }
+        }
+
+        function calculateSalePrice() {
+            var cost = parseFloat(document.getElementById('cost2').value);
+            var marginPercent = parseFloat(document.getElementById('marginPercent').value);
+            if (!isNaN(cost) && !isNaN(marginPercent)) {
+                var salePrice = cost / (1 - marginPercent / 100);
+                document.getElementById('salePriceResult').innerHTML = 'Sale Price: $' + salePrice.toFixed(2);
+            } else {
+                document.getElementById('salePriceResult').innerHTML = 'Please enter valid numbers.';
+            }
+        }
+
+        function calculateCost() {
+            var salePrice = parseFloat(document.getElementById('salePrice2').value);
+            var marginPercent = parseFloat(document.getElementById('marginPercent2').value);
+            if (!isNaN(salePrice) && !isNaN(marginPercent)) {
+                var cost = salePrice - (salePrice * marginPercent / 100);
+                document.getElementById('costResult').innerHTML = 'Cost: $' + cost.toFixed(2);
+            } else {
+                document.getElementById('costResult').innerHTML = 'Please enter valid numbers.';
+            }
+        }
+
+        function adjustPrice() {
+            var originalPrice = parseFloat(document.getElementById('originalPrice').value);
+            var adjustmentPercent = parseFloat(document.getElementById('adjustmentPercent').value);
+            if (!isNaN(originalPrice) && !isNaN(adjustmentPercent)) {
+                var adjustedPrice = originalPrice * (1 + adjustmentPercent / 100);
+                document.getElementById('adjustedPriceResult').innerHTML = 'Adjusted Price: $' + adjustedPrice.toFixed(2);
+            } else {
+                document.getElementById('adjustedPriceResult').innerHTML = 'Please enter valid numbers.';
+            }
+        }
+
+        function calculatePercentDifference() {
+            var number1 = parseFloat(document.getElementById('number1').value);
+            var number2 = parseFloat(document.getElementById('number2').value);
+            if (!isNaN(number1) && !isNaN(number2)) {
+                var difference = number2 - number1;
+                var percentDifference = (difference / number1) * 100;
+                document.getElementById('percentDifferenceResult').innerHTML = 'Difference: ' + difference.toFixed(2) + ', Percent Difference: ' + percentDifference.toFixed(2) + '%';
+            } else {
+                document.getElementById('percentDifferenceResult').innerHTML = 'Please enter valid numbers.';
+            }
+        }
+
+        function calculateCostAndProfit() {
+            // Get input values
+            let laborCost = parseFloat(document.getElementById('laborCost').value);
+            let materialCost = parseFloat(document.getElementById('materialCost').value);
+            let laborMargin = parseFloat(document.getElementById('laborMargin').value) / 100;
+            let materialMargin = parseFloat(document.getElementById('materialMargin').value) / 100;
+
+            if (!isNaN(laborCost) && !isNaN(materialCost) && !isNaN(laborMargin) && !isNaN(materialMargin)) {
+                // Calculate sale prices
+                let laborSalePrice = laborCost + (laborCost * laborMargin);
+                let materialSalePrice = materialCost + (materialCost * materialMargin);
+
+                // Calculate total sale price and profit margin
+                let totalSalePrice = laborSalePrice + materialSalePrice;
+                let totalCost = laborCost + materialCost;
+                let totalProfit = totalSalePrice - totalCost;
+                let totalProfitMargin = (totalProfit / totalCost) * 100;
+
+                // Display results
+                document.getElementById('laborSalePrice').innerText = laborSalePrice.toFixed(2);
+                document.getElementById('materialSalePrice').innerText = materialSalePrice.toFixed(2);
+                document.getElementById('totalSalePrice').innerText = totalSalePrice.toFixed(2);
+                document.getElementById('totalProfitMargin').innerText = totalProfitMargin.toFixed(2) + '%';
+            } else {
+                document.getElementById('laborSalePrice').innerText = 'Please enter valid numbers.';
+                document.getElementById('materialSalePrice').innerText = 'Please enter valid numbers.';
+                document.getElementById('totalSalePrice').innerText = 'Please enter valid numbers.';
+                document.getElementById('totalProfitMargin').innerText = 'Please enter valid numbers.';
+            }
+        }
+
+        function exportData(format) {
+            var data = [
+                ['Gross Margin Percentage', document.getElementById('grossMarginResult').innerText],
+                ['Sale Price', document.getElementById('salePriceResult').innerText],
+                ['Cost', document.getElementById('costResult').innerText],
+                ['Adjusted Price', document.getElementById('adjustedPriceResult').innerText],
+                ['Percent Difference', document.getElementById('percentDifferenceResult').innerText],
+                ['Labor Sale Price', document.getElementById('laborSalePrice').innerText],
+                ['Material Sale Price', document.getElementById('materialSalePrice').innerText],
+                ['Total Sale Price', document.getElementById('totalSalePrice').innerText],
+                ['Total Profit Margin', document.getElementById('totalProfitMargin').innerText]
+            ];
+
+            if (format === 'csv') {
+                var csvContent = "data:text/csv;charset=utf-8," 
+                    + data.map(e => e.join(",")).join("\n");
+                var encodedUri = encodeURI(csvContent);
+                var link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "financial_calculations.csv");
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else if (format === 'excel') {
+                var ws = XLSX.utils.aoa_to_sheet(data);
+                var wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+                XLSX.writeFile(wb, "financial_calculations.xlsx");
+            }
+        }
+    </script>
+</body>
+</html>
